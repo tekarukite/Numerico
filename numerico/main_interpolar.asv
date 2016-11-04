@@ -29,6 +29,9 @@ for i = 2:2:8
     
     phi = @(x)((f(x)-B(x)).^2);
     norma = integral(phi,-1,1);
+    %quizas lo que acabo de hacer esta mal. 
+    %el residuo es p(x) - f(x) = R(x)
+    %habria de hacer la resta para xaxis
     plot(axisx, A);
     hold on;
     
@@ -85,7 +88,7 @@ for j = 1 : length(m)
 end
 legend('show');
 
-%respò
+%respÃ²
 
 
 
