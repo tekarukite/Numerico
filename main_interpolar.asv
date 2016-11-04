@@ -55,7 +55,7 @@ end
 
 
 %APARTAT 4: interpolacio polinomica amb els polinomis de chebyshev
-m = [2, 4, 6];
+m = [2, 4, 6, 8];
 xaxis = -1:0.01:1;
 figure(4);
 plot(xaxis, polRunge(xaxis),'k'),
@@ -68,11 +68,11 @@ for i = 1 : length(m)
         cheb = @(x) (chebyshevT(j - 1, x));
         a(j) = integral(@(x) (w(x) .* (cheb(x).^2)), -1, 1);
         b(j) = integral(@(x)(w(x).*cheb(x).*polRunge(x)), -1, 1);
-        coef(j) = b(j) / a(j);
+        c(j) = b(j) / a(j);
     end
-    display(coef);
+    display(c);
     
-    C = @(x) (nou_pol_cheb(x, coef));
+    C = @(x) (nou_pol_cheb(x, c));
     plot(xaxis, C(xaxis));
     hold on;
 end
