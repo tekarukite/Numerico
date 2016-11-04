@@ -30,7 +30,7 @@ for i = 2:2:8
 end
 
 % APARTAT 3
-m = [2, 4, 6, 8];
+m = [4, 6, 8];
 xaxis = -1:0.01:1;
 figure(3);
 plot(xaxis, polRunge(xaxis), 'k');
@@ -38,7 +38,7 @@ hold on;
 
 for j = 1 : length(m);
     grau = m(j);
-    for i = 1 : grau
+    for i = 1 : grau + 1
         a(i) = integral(@(x) (legendreP(i - 1, x)).^2, -1, 1);
         b(i) = integral(@(x) (legendreP(i - 1, x) .* polRunge(x)), -1, 1);
         c(i) = b(i) / a(i);
