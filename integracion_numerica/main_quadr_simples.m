@@ -1,8 +1,20 @@
 clear all; close all;
 
-%FUNCION (la dibujamos)
+%funcion1: exponencial
 f = @(x) exp(-x) + 1/2.*exp(-(x-4).^2);
 a = 0; b = 5;
+
+%funcion2: racional
+%f = @(x) 1./(1+x^2);
+%a = -4; b = 4;
+
+%funcion3 : trigonometrica
+% f = @(x) x./sin(x);
+% a = 0; b = pi/2;
+
+
+%FUNCION (la dibujamos)
+
 xaxis = a:0.01:b;
 figure(1)
 plot(xaxis, f(xaxis)), title('e^(-x) + 1/2*e^(-(x-4)^2)');
@@ -72,20 +84,4 @@ for k = 1:13
 end
 
 plot(log10(1:1:13), log10(err_gauss),'b');
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
