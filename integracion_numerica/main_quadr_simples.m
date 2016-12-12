@@ -43,18 +43,36 @@ display(error);
 for k = 1:14
     x = a:(b-a)/k:b;
     W = pessos_cotes(x,a,b);
-    display(W);
-    display(f(x));
     sumands = W.*f(x)';
     I_aprox = sum(sumands);
-    display(I_aprox);
     err(k) = abs(I_aprox-I_exacta);
 end
 %Fem la grafica del log del error en funcio del logaritme del nombre de pts
 punts = 1:1:14;
-display(punts);
+
 figure(2)
 plot(log10(punts), log10(err),'r'), title('grafica del error');
+hold on;
+
+
+%%
+%QUADRATURA DE NEWTON_COTES (Abierta)
+
+%Calculem l'error dividint l'interval [a,b] en n punts on n = 1,...14
+for k = 2:14
+    x = a:(b-a)/k:b;
+    r = length(x);
+    x = x(2):x(r-1);
+    W = pessos_cotes(x,a,b);
+    sumands = W.*f(x)';
+    I_aprox = sum(sumands);
+    err(k) = abs(I_aprox-I_exacta);
+end
+%Fem la grafica del log del error en funcio del logaritme del nombre de pts
+punts = 1:1:14;
+
+figure(2)
+plot(log10(punts), log10(err),'g'), title('grafica del error');
 hold on;
 
 %OBS: A Raquel le ha quedado igual, asi que seguramente esta bien
@@ -69,19 +87,15 @@ nIP = 4;
 %multiplica per (b-a)/2;
 
 x = (b-a)/2*z + (b+a)/2;
-display(w);
-display(f(x));
 sumands = w*f(x)*(b-a)/2;
 I_aprox = sum(sumands);
-display(I_aprox);
 
 for k = 1:13
     [z,w] = QuadraturaGauss(k + 1);
     x = (b-a)/2*z + (b+a)/2; %canvi de variable
     I_aprox = w*f(x)*(b-a)/2;
-    display(I_aprox);
     err_gauss(k) = abs(I_aprox - I_exacta);
 end
 
 plot(log10(1:1:13), log10(err_gauss),'b');
-
+legend('NC-tancat', 'NC-obert', 'Gauss');
