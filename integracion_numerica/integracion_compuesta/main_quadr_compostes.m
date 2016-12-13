@@ -54,13 +54,16 @@ fprintf('\nPendent 3 darrers punts:\n Composta trapezi: %0.1f \n',ajustTrap(1))
 %% Composta de Simpson
 error_Simpson = [];
 for k = 1 : 5
-    m = 2 * 2^k;
+    m = 2*2^k;
     error_Simpson = [error_Simpson, abs(compostaSimpson(f,a,b,m) - I_ex)];
 end
 
-nPuntsTrap = 2*2.^[1:5]+1;
-plot(log10(nPuntsTrap),log10(error_Simpson),'-*')
+nPuntsSimpson = 2*2.^[1:5]+1;
+plot(log10(nPuntsSimpson),log10(error_Simpson),'-*')
 
+ajustSimpson = (polyfit(log10(nPuntsSimpson(end-2:end)),log10(error_Simpson(end-2:end)),2));
+
+fprintf('\nPendent 3 darrers punts:\n Composta simpson: %0.1f \n',ajustSimpson(1))
 
 %% Composta de Gauss-Legendre amb n = 1 (2 punts per subinterval)
 error_GL1 = []; error_GL2 = [];
@@ -70,8 +73,14 @@ for k = 1 : 5
     error_GL2 = [error_GL2, abs(composta_GL(f,a,b,m,2) - I_ex)];
 end
 
-nPuntsTrap = 2*2.^[1:5]+1;
-plot(log10(nPuntsTrap),log10(error_GL1),'-x')
-plot(log10(nPuntsTrap),log10(error_GL2),'-+')
+nPuntsGauss1 = 2*2.^[1:5]+1;
+nPuntsGauss2 = 2*2.^[1:5]+1;
+plot(log10(nPuntsGauss1),log10(error_GL1),'-x')
+plot(log10(nPuntsGauss2),log10(error_GL2),'-+')
 legend('Composta de trapezi','Composta de Simpson', 'Composta de G-L(n=1)', 'Composta de G-L(n=2)')
 
+
+ajustGauss1 = (polyfit(log10(nPuntsGauss1(end-2:end)),log10(error_GL1(end-2:end)),1));
+ajustGauss2 = (polyfit(log10(nPuntsGauss2(end-2:end)),log10(error_GL2(end-2:end)),1));
+fprintf('\nPendent 3 darrers punts:\n Composta Gauss (n = 1): %0.1f \n',ajustGauss1(1))
+fprintf('\nPendent 3 darrers punts:\n Composta Gauss (n = 2): %0.1f \n',ajustGauss2(1))
