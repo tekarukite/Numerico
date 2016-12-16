@@ -58,7 +58,7 @@ for k = 1 : 5
     error_Simpson = [error_Simpson, abs(compostaSimpson(f,a,b,m) - I_ex)];
 end
 
-nPuntsSimpson = 2*2.^[1:5]+1;
+nPuntsSimpson = 4*2.^[1:5]+1;
 plot(log10(nPuntsSimpson),log10(error_Simpson),'-*')
 
 ajustSimpson = (polyfit(log10(nPuntsSimpson(end-2:end)),log10(error_Simpson(end-2:end)),2));
@@ -73,8 +73,8 @@ for k = 1 : 5
     error_GL2 = [error_GL2, abs(composta_GL(f,a,b,m,2) - I_ex)];
 end
 
-nPuntsGauss1 = 2*2.^[1:5]+1;
-nPuntsGauss2 = 2*2.^[1:5]+1;
+nPuntsGauss1 = 4*2.^[1:5];
+nPuntsGauss2 = 6*2.^[1:5];
 plot(log10(nPuntsGauss1),log10(error_GL1),'-x')
 plot(log10(nPuntsGauss2),log10(error_GL2),'-+')
 legend('Composta de trapezi','Composta de Simpson', 'Composta de G-L(n=1)', 'Composta de G-L(n=2)')
