@@ -1,0 +1,236 @@
+clear all; close all; clc;
+format long;
+
+%Dades del problema
+f = @(x) sin(exp(x));
+a = 0;
+b = 3;
+I_exacta = integral(f,a,b); %0.606124473418770
+
+figure(1)
+xaxis = a:0.001:b;
+plot(xaxis, f(xaxis),'k');
+grid on;
+legend('f(x)');
+xlabel('x');
+ylabel('f(x)');
+title('Grafica de la funcio');
+
+
+%% apartat a
+m = [4,8,16,32]; %,64,64*2,64*4
+
+neval_trap = zeros(1,length(m));
+err_trap = zeros(1, length(m));
+neval_simpson = zeros(1, length(m));
+err_simpson = zeros(1, length(m));
+
+for i = 1 : length(m)
+    I_trap = compostaTrapezi(f,a,b,m(i));
+    %per cada interval al metode de trapezi avaluem m+1 cops la funcio
+    neval_trap(i) = m(i) + 1;
+    err_trap(i) = abs((I_exacta - I_trap)/I_exacta);
+    
+    I_simps = compostaSimpson(f,a,b,m(i));
+    %per cada interval a simpson avaluem (si lo hacemos una vez por punto)
+    %2*m + 1 vegades.
+    neval_simpson(i) = 2*m(i) + 1;
+    err_simpson(i) = abs((I_exacta - I_simps)/I_exacta);
+end
+figure(2)
+plot(log10(neval_trap), log10(err_trap),'-o');
+hold on;
+plot(log10(neval_simpson), log10(err_simpson),'-*');
+grid on;
+legend('Trapezi','Simpson');
+xlabel('log(#avaluacions de la funcio)');
+ylabel('log(Error relatiu)');
+title('Gràfica del error');
+
+
+%subapartat a
+%Afegim dos punts més per comprovar que la convergència és correcta i
+%calcular les pendents dels errors
+
+r = length(m);
+I_trap = compostaTrapezi(f,a,b,64);
+err_trap(r + 1) = abs(I_exacta - I_trap);
+
+I_simps = compostaSimpson(f,a,b,64);
+err_simpson(r + 1) = abs(I_exacta - I_simps);
+
+I_trap = compostaTrapezi(f,a,b,128);
+err_trap(r + 2) = abs(I_exacta - I_trap);
+
+I_simps = compostaSimpson(f,a,b,128);
+err_simpson(r + 2) = abs(I_exacta - I_simps);
+
+nPuntsTrap = 2*2.^[1:5]+1;
+ajustTrap = (polyfit(log10(nPuntsTrap(end-2:end)),log10(err_trap(end-2:end)),1));
+fprintf('\nPendent 3 darrers punts:\n Composta trapezi: %0.1f \n',ajustTrap(1));
+
+nPuntsSimpson = 2*2.^[2:5]+1;
+ajustSimpson = (polyfit(log10(nPuntsSimpson(end-2:end)),log10(err_simpson(end-2:end)),1));
+fprintf('\nPendent 3 darrers punts:\n Composta simpson: %0.1f \n',ajustSimpson(1))
+
+
+%% apartat b
+
+%Com hem calculat l'error fins a 128 intervals als apartats anteriors pels 
+%dos mètodes, utilitzarem un dels errors per calcular c a E_m = c/m^2 al
+%mètode del trapezi i c a E_m = c/m^4 al mètode de simpson amb c una cota
+%aproximada (  Utilitzem per exemple el de 16 intervals m(3)   )
+
+xs = (1/2)*1e-06; %xifres significatives
+
+display('----------------------------------------------------------');
+display('APARTAT B');
+display('Predicció del nombre de subintervals pel mètode del trapezi');
+%TRAPEZI             
+c = err_trap(3)*(16^2);               %calculem la constant c:
+display(c);
+
+%calculem l'error per les xifres significatives:
+prediccio = sqrt(c/xs);
+prediccio = floor(prediccio);         %Volem un valor enter
+display(prediccio);
+
+%Comprovem si l'error esta ben aproximat amb aquest nombre d'intervals.
+I_trapezi = compostaTrapezi(f,a,b,prediccio);
+err_trapezi = abs(I_exacta - I_trapezi);
+display(err_trapezi);
+
+display('Predicció del nombre de subintervals pel mètode de Simpson');
+%SIMPSON        
+c_simpson = err_simpson(3)*(16^4);            %calculem la constant c:
+display(c_simpson);
+
+%calculem l'error per les xifres significatives:
+prediccio = (c_simpson/xs)^(1/4);
+prediccio = floor(prediccio);         %Volem un valor enter
+display(prediccio);
+
+%Comprovem si l'error esta ben aproximat amb aquest nombre d'intervals.
+I_simpson = compostaSimpson(f,a,b,prediccio);
+error_simps = abs(I_exacta - I_simpson);
+display(error_simps);
+
+display('----------------------------------------------------------');
+
+%% apartat c: demostrar a script
+
+%% apartat d i e
+display('APARTATS D I E');
+
+tol = 1e-4; %els punts de simpson_adaptatiu son les x, on s'ha partit l'interval.
+[I_adapt, punts1] = Simpson_adaptatiu(f,a,b,tol); 
+display('Integral aprox amb simpson adaptatiu i nombre de punts amb tol 10^(-4)')
+display(I_adapt);
+Error_simp_adapt = abs(I_adapt - I_exacta);
+display(Error_simp_adapt);
+r = length(punts1);
+display(r-1); %ja que el nombre de subintervals es el nombre de punts - 1
+
+figure(3)
+xaxis = a:0.001:b;
+plot(xaxis, f(xaxis),'b');
+set(gca, 'XTick', punts1, 'XTicklabel','');
+hold on
+grid on
+legend('f(x)');
+xlabel('punts de integracio');
+ylabel('f(x)');
+title('Punts de integracio de simpson adaptatiu amb tolerancia = 1e-4');
+
+
+plot(punts1, f(punts1), '*');
+
+%segona part
+tol = 1e-8;
+[I_adapt, punts2] = Simpson_adaptatiu(f,a,b,tol);
+display('Integral aprox amb simpson adaptatiu i nombre de punts amb tol 10^(-8)')
+display(I_adapt);
+Error_simp_adapt = abs(I_adapt - I_exacta);
+display(Error_simp_adapt);
+r = length(punts2);
+display(r - 1); %ja que el nombre de subintervals es el nombre de punts - 1
+
+figure(4)
+xaxis = a:0.001:b;
+plot(xaxis, f(xaxis),'b');
+hold on
+plot(punts2, f(punts2), '*');
+grid on
+set(gca, 'XTick', punts2, 'XTicklabel','');
+legend('f(x)');
+xlabel('punts de integracio');
+ylabel('f(x)');
+title('Punts de integracio de simpson adaptatiu amb tolerancia = 1e-8');
+
+%% apartat f
+display('------------------------------------------------------------');
+display('APARTAT F');
+
+%utilitzant la constant de simpson compost previament calculada al apartat
+%b, deduirem de la mateixa manera el nombre de subintervals.
+
+%ERROR DE 10^(-4)
+display('Amb un error de 10^(-4), a simpson_compost:');
+error = 1e-4;
+prediccio = (c_simpson/error)^(1/4);
+prediccio = floor(prediccio);         %Volem un valor enter
+display(prediccio);
+
+%Comprovem si l'error esta ben aproximat amb aquest nombre d'intervals.
+I_simpson = compostaSimpson(f,a,b,prediccio);
+error_simps = abs(I_exacta - I_simpson);
+display(error_simps);
+
+%ERROR DE 10^(-8)
+display('Amb un error de 10^(-8), a simpson_compost:');
+error = 1e-8;
+prediccio = (c_simpson/error)^(1/4);
+prediccio = floor(prediccio);         %Volem un valor enter
+display(prediccio);
+
+%Comprovem si l'error esta ben aproximat amb aquest nombre d'intervals.
+I_simpson = compostaSimpson(f,a,b,prediccio);
+error_simps = abs(I_exacta - I_simpson);
+display(error_simps);
+
+
+
+
+
+
+% %%%Tolerancia 1e-04;
+% tol = 1e-4;
+% niter = 1;
+% I_simpson = 0;
+% k = 1;
+% err_simpson(k) = 1;
+% while err_simpson(k) > eps && niter < 100000 %para q no explote por si acaso
+%     m2 = 1 + niter;
+%     I_simpson = compostaSimpson(f,a,b,m2);
+%     err_simpson(k + 1) = abs(I_exacta - I_simpson);
+%     niter = m2;
+%     k = k + 1;
+% end
+% display(I_simpson);
+% display(m2);
+% 
+% %%%Altra tolerancia: 1e-8;
+% tol = 1e-8;niter = 1;
+% I_simpson = 0;
+% k = 1;
+% err_simpson(k) = 1;
+% while err_simpson(k) > eps && niter < 100000 %para q no explote por si acaso
+%     m2 = 1 + niter;
+%     I_simpson = compostaSimpson(f,a,b,m2);
+%     err_simpson(k + 1) = abs(I_exacta - I_simpson);
+%     niter = m2;
+%     k = k + 1;
+% end
+% display(I_simpson);
+% display(m2);
+% 
